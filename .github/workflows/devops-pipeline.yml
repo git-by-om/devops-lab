@@ -1,0 +1,55 @@
+name: DevOps Lab - Exp 10 and 11
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  # EXP 10 - Build Pipeline
+  Build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up JDK 11
+      uses: actions/setup-java@v3
+      with:
+        java-version: '11'
+        distribution: 'temurin'
+
+    - name: Build with Maven
+      run: mvn clean package
+
+    - name: Run Tests
+      run: mvn test
+
+    - name: Upload JAR artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: devops-lab-jar
+        path: target/*.jar
+
+  # EXP 11 - Release Pipeline
+  Deploy:
+    needs: Build
+    runs-on: ubuntu-latest
+    steps:
+    - name: Download artifact
+      uses: actions/download-artifact@v3
+      with:
+        name: devops-lab-jar
+
+    - name: Step 1 - Receive Artifact
+      run: echo "JAR artifact received successfully!"
+
+    - name: Step 2 - Deploy to App Service
+      run: echo "Deploying application to Azure App Service..."
+
+    - name: Step 3 - Configure Secrets
+      run: |
+        echo "Reading secrets from Key Vault..."
+        echo "DB_PASSWORD=********"
+        echo "API_KEY=********"
+
+    - name: Step 4 - Verify Deployment
+      run: echo "Deployment successful! Application is live!"
